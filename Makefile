@@ -1,5 +1,5 @@
 build:
-	go build -o ./.bin/game cmd/game.go
+	go build -o ./.bin/raycast cmd/raycast.go
 
 run: build
-	./.bin/game
+	./.bin/raycast
