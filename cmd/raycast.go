@@ -32,8 +32,6 @@ func main() {
 		rl.DrawFPS(screenSize-100, 0)
 		drawGrid()
 
-		rl.DrawCircleV(p1, 0.2*cellSize, rl.Green)
-
 		for i := 0; i < 3; i++ {
 			rl.DrawCircleLines(int32(p2.X), int32(p2.Y), 0.1*cellSize, rl.Red)
 			rl.DrawLineEx(p1, p2, 2, rl.Yellow)
@@ -41,6 +39,7 @@ func main() {
 			p2 = p3
 		}
 
+		rl.DrawCircleV(p1, 0.2*cellSize, rl.Green)
 		rl.EndDrawing()
 	}
 }
