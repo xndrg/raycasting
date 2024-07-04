@@ -7,6 +7,19 @@ import (
 	raymath "github.com/xndrg/raycast/pkg"
 )
 
+var scene [gridSize][gridSize]int = [gridSize][gridSize]int{
+	{0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+	{0, 1, 0, 0, 0, 0, 0, 0, 0, 0},
+	{0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+	{0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+	{0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+	{0, 0, 0, 0, 0, 0, 0, 1, 0, 0},
+	{0, 0, 0, 0, 0, 0, 0, 1, 0, 0},
+	{0, 0, 0, 0, 0, 1, 1, 1, 0, 0},
+	{0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+	{0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+}
+
 const (
 	screenSize = 1000
 	gridSize   = 10
@@ -31,6 +44,8 @@ func main() {
 
 		rl.ClearBackground(rl.Black)
 		rl.DrawFPS(screenSize-100, 0)
+
+		drawWalls()
 		drawGrid()
 
 		for {
@@ -39,17 +54,39 @@ func main() {
 			c := hittingCell(p1, p2)
 
 			p2 = p3
-			rl.DrawCircleLines(int32(p2.X), int32(p2.Y), 0.1*cellSize, rl.Red)
 
-			if c.X < 0 || c.X >= cellSize || c.Y < 0 || c.Y >= cellSize {
+			if c.X/cellSize < 0 || c.X/cellSize >= gridSize ||
+				c.Y/cellSize < 0 || c.Y/cellSize >= gridSize ||
+				scene[int(c.Y/cellSize)][int(c.X/cellSize)] == 1 {
 				break
 			}
+
+			rl.DrawCircleLines(int32(p2.X), int32(p2.Y), 0.1*cellSize, rl.Red)
+			rl.DrawLineEx(p1, p2, 2, rl.Yellow)
+
 		}
 
-		rl.DrawLineEx(p1, p2, 2, rl.Yellow)
 		rl.DrawCircleV(p1, 0.2*cellSize, rl.Green)
 
 		rl.EndDrawing()
+	}
+}
+
+func drawWalls() {
+	var x, y int32
+
+	for y = 0; y < gridSize; y++ {
+		for x = 0; x < gridSize; x++ {
+			if scene[y][x] != 0 {
+				rl.DrawRectangle(
+					x*cellSize,
+					y*cellSize,
+					cellSize,
+					cellSize,
+					rl.SkyBlue,
+				)
+			}
+		}
 	}
 }
 
@@ -118,7 +155,7 @@ func hittingCell(p1, p2 rl.Vector2) rl.Vector2 {
 
 	d := rl.Vector2Subtract(p2, p1)
 	return rl.Vector2{
-		X: float32(math.Floor(float64(p2.X) + raymath.Sign(float64(d.X))*eps)),
-		Y: float32(math.Floor(float64(p2.Y) + raymath.Sign(float64(d.Y))*eps)),
+		X: float32(math.Floor(float64(p2.X)+raymath.Sign(float64(d.X))*eps) * cellSize),
+		Y: float32(math.Floor(float64(p2.Y)+raymath.Sign(float64(d.Y))*eps) * cellSize),
 	}
 }
