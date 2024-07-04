@@ -11,6 +11,7 @@ const (
 	screenSize = 1000
 	gridSize   = 10
 	cellSize   = screenSize / gridSize
+	eps        = 1e-3
 )
 
 func main() {
@@ -32,14 +33,22 @@ func main() {
 		rl.DrawFPS(screenSize-100, 0)
 		drawGrid()
 
-		for i := 0; i < 3; i++ {
-			rl.DrawCircleLines(int32(p2.X), int32(p2.Y), 0.1*cellSize, rl.Red)
-			rl.DrawLineEx(p1, p2, 2, rl.Yellow)
+		for {
+
 			p3 = rayStep(p1, p2)
+			c := hittingCell(p1, p2)
+
 			p2 = p3
+			rl.DrawCircleLines(int32(p2.X), int32(p2.Y), 0.1*cellSize, rl.Red)
+
+			if c.X < 0 || c.X >= cellSize || c.Y < 0 || c.Y >= cellSize {
+				break
+			}
 		}
 
+		rl.DrawLineEx(p1, p2, 2, rl.Yellow)
 		rl.DrawCircleV(p1, 0.2*cellSize, rl.Green)
+
 		rl.EndDrawing()
 	}
 }
@@ -91,8 +100,6 @@ func rayStep(p1 rl.Vector2, p2 rl.Vector2) rl.Vector2 {
 }
 
 func snap(x float32, dx float32) float32 {
-	const eps = 1e-3
-
 	if dx > 0 {
 		result := math.Ceil(float64(x) + raymath.Sign(float64(dx))*eps)
 		return float32(result)
@@ -103,4 +110,15 @@ func snap(x float32, dx float32) float32 {
 	}
 
 	return x
+}
+
+func hittingCell(p1, p2 rl.Vector2) rl.Vector2 {
+	p1 = rl.Vector2{X: p1.X / cellSize, Y: p1.Y / cellSize}
+	p2 = rl.Vector2{X: p2.X / cellSize, Y: p2.Y / cellSize}
+
+	d := rl.Vector2Subtract(p2, p1)
+	return rl.Vector2{
+		X: float32(math.Floor(float64(p2.X) + raymath.Sign(float64(d.X))*eps)),
+		Y: float32(math.Floor(float64(p2.Y) + raymath.Sign(float64(d.Y))*eps)),
+	}
 }
